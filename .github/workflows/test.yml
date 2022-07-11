@@ -1,0 +1,23 @@
+name: Test
+description: test desc
+
+runs:
+  steps:
+
+    - name: Set fetch depth
+      id: set-fetch-depth
+      run: |
+        FETCH_DEPTH=10
+        echo "::set-output name=fetch-depth::$FETCH_DEPTH"
+
+    - name: Checkout code
+      uses: actions/checkout@7884fcad6b5d53d10323aee724dc68d8b9096a2e # v2.4.2
+      with:
+        fetch-depth: ${{ steps.set-fetch-depth.outputs.fetch-depth }}
+
+    - name: Test
+      run: |
+        git log
+        PARENT_BRANCH=$(git show-branch -a 2>/dev/null | { grep '\*' || :; } | { grep -v `git rev-parse --abbrev-ref HEAD` || :; } | head -n1 | sed 's/.*\[\(.*\)\].*/\1/' | sed 's/[\^~].*//')
+        echo "==="
+        echo "PARENT_BRANCH IS $PARENT_BRANCH"
